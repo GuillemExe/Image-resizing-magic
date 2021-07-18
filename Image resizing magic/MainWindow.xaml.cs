@@ -37,6 +37,7 @@ namespace Image_resizing_magic
 
         private bool _AddFinalMessageInImage;
         private bool _ResizeInJPG;
+        private bool _ResizeInJPEG;
         private bool _ResizeInPNG;
 
         public MainWindow()
@@ -80,18 +81,12 @@ namespace Image_resizing_magic
         {
             if (CheckBoxFinalNameImage.IsChecked != null)  _AddFinalMessageInImage = (bool) CheckBoxFinalNameImage.IsChecked;
             if (CheckBoxJPGConverter.IsChecked != null) _ResizeInJPG = (bool) CheckBoxJPGConverter.IsChecked;
+            if (CheckBoxJPEGConverter.IsChecked != null) _ResizeInJPEG = (bool)CheckBoxJPEGConverter.IsChecked;
             if (CheckBoxPNGConverter.IsChecked != null) _ResizeInPNG = (bool) CheckBoxPNGConverter.IsChecked;
         }
 
         void WorkerDoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            //for (int i = 0; i < _ListImages.Count; i++)
-            //{
-            //    (sender as BackgroundWorker).ReportProgress(i);
-            //    Thread.Sleep(100);
-            //}
-
             for (int i = 0; i < _ListImages.Count; i++)
             {
                 ImageClassAux Image = _ListImages[i];
@@ -105,14 +100,17 @@ namespace Image_resizing_magic
                     string directoryNewFile = _DirectoryNewFile;
 
                     nameImage += _AddFinalMessageInImage ? "-resized." : ".";
-                    // nameImage += CheckBoxFinalNameImage.IsChecked ?? false ? "-resized." : ".";
-                    // nameImage += "-resized.";
 
                     fullUrl = directoryNewFile + "\\" + nameImage;
 
                     if (_ResizeInJPG)
                     {
                         magickImage.Write(fullUrl + "jpg");
+                    }
+
+                    if (_ResizeInJPEG)
+                    {
+                        magickImage.Write(fullUrl + "jpeg");
                     }
 
                     if (_ResizeInPNG)
@@ -141,35 +139,19 @@ namespace Image_resizing_magic
         {
             BackgroundWorker worker = new BackgroundWorker();
 
-            foreach (ImageClassAux Image in _ListImages)
-            {
-                using (MagickImage magickImage = new MagickImage(Image.GetDirectoryRoute()))
-                {
-                    magickImage.Resize(_WidthImage, _HeightImage);
+            worker.WorkerReportsProgress = true;
+            worker.DoWork += WorkerDoWork;
+            worker.ProgressChanged += WorkerProgressChanged;
 
-                    string fullUrl;
-                    string nameImage = Image.GetNameImage();
-                    string directoryNewFile = _DirectoryNewFile;
-
-                    nameImage += CheckBoxFinalNameImage.IsChecked ?? false ? "-resized." : ".";
-
-                    fullUrl = directoryNewFile + "\\" + nameImage;
-
-                    if (CheckBoxJPGConverter.IsChecked ?? false)
-                    {
-                        magickImage.Write(fullUrl + "jpg");
-                    }
-
-                    if (CheckBoxPNGConverter.IsChecked ?? false)
-                    {
-                        magickImage.Write(fullUrl + "png");
-                    }
-                }
-            }
-        } 
+            worker.RunWorkerAsync();
+        }
 
         private void GetAllImages()
         {
+            ProgressBarResize.Minimum = 0;
+            ProgressBarResize.Value = 0;
+            ProgressBarResize.Maximum = Directory.GetFiles(_DirectoryOriginalFile).Length;
+
             foreach (string directory in Directory.GetFiles(_DirectoryOriginalFile))
             {
                 if (!string.IsNullOrEmpty(directory))
@@ -183,7 +165,7 @@ namespace Image_resizing_magic
                     // SEPARATED THE EXTENSION
                     string[] fileNameAndExtension = lastItem.Split('.');
                     // I CHECK THAT THE EXTENSION IS VALID
-                    if (fileNameAndExtension[fileNameAndExtension.Length - 1].Contains("jpg"))
+                    if (fileNameAndExtension[fileNameAndExtension.Length - 1].Contains("png") || fileNameAndExtension[fileNameAndExtension.Length - 1].Contains("jpg") || fileNameAndExtension[fileNameAndExtension.Length - 1].Contains("jpeg"))
                     {
                         ImageClassAux imageClassAux = new ImageClassAux(directory, fileNameAndExtension[0], fileNameAndExtension[fileNameAndExtension.Length - 1]);
                         _ListImages.Add(imageClassAux);

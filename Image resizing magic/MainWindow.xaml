@@ -54,7 +54,8 @@
         <Label Grid.Column="0" Grid.ColumnSpan="5" Grid.Row="6" Content="Otras opciones:" VerticalContentAlignment="Bottom"></Label>
         <CheckBox Name="CheckBoxFinalNameImage" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="7" IsChecked="True" VerticalContentAlignment="Center">Agregar texto final en la redimensión (-resized)</CheckBox>
         <CheckBox Name="CheckBoxJPGConverter" Grid.Column="2" Grid.Row="7" IsChecked="True" VerticalContentAlignment="Center">Redimensionar a JPG</CheckBox>
-        <CheckBox Name="CheckBoxPNGConverter" Grid.Column="3" Grid.Row="7" IsChecked="False" VerticalContentAlignment="Center">Redimensionar a PNG</CheckBox>
+        <CheckBox Name="CheckBoxJPEGConverter" Grid.Column="3" Grid.Row="7" IsChecked="False" VerticalContentAlignment="Center">Redimensionar a JPEG</CheckBox>
+        <CheckBox Name="CheckBoxPNGConverter" Grid.Column="4" Grid.Row="7" IsChecked="False" VerticalContentAlignment="Center">Redimensionar a PNG</CheckBox>
 
 
         <Button Grid.Row="9" Grid.Column="2" Click="ResizeImages">
