@@ -67,23 +67,25 @@ namespace Image_resizing_magic
 
         private void ResizeImages(object sender, RoutedEventArgs e)
         {
-            BackgroundWorker worker = new BackgroundWorker();
-
             GetDesiredDimension();
 
             GetAllImages();
 
-            worker.WorkerReportsProgress = true;
-            worker.DoWork += WorkerDoWork;
-            worker.ProgressChanged += WorkerProgressChanged;
+            GetMoreOptions();
 
-            worker.RunWorkerAsync();
+            ResizeSystem();
+        }
 
-            // ResizeSystem();
+        private void GetMoreOptions()
+        {
+            if (CheckBoxFinalNameImage.IsChecked != null)  _AddFinalMessageInImage = (bool) CheckBoxFinalNameImage.IsChecked;
+            if (CheckBoxJPGConverter.IsChecked != null) _ResizeInJPG = (bool) CheckBoxJPGConverter.IsChecked;
+            if (CheckBoxPNGConverter.IsChecked != null) _ResizeInPNG = (bool) CheckBoxPNGConverter.IsChecked;
         }
 
         void WorkerDoWork(object sender, DoWorkEventArgs e)
         {
+            BackgroundWorker worker = sender as BackgroundWorker;
             //for (int i = 0; i < _ListImages.Count; i++)
             //{
             //    (sender as BackgroundWorker).ReportProgress(i);
@@ -102,16 +104,18 @@ namespace Image_resizing_magic
                     string nameImage = Image.GetNameImage();
                     string directoryNewFile = _DirectoryNewFile;
 
-                    nameImage += CheckBoxFinalNameImage.IsChecked ?? false ? "-resized." : ".";
+                    nameImage += _AddFinalMessageInImage ? "-resized." : ".";
+                    // nameImage += CheckBoxFinalNameImage.IsChecked ?? false ? "-resized." : ".";
+                    // nameImage += "-resized.";
 
                     fullUrl = directoryNewFile + "\\" + nameImage;
 
-                    if (CheckBoxJPGConverter.IsChecked ?? false)
+                    if (_ResizeInJPG)
                     {
                         magickImage.Write(fullUrl + "jpg");
                     }
 
-                    if (CheckBoxPNGConverter.IsChecked ?? false)
+                    if (_ResizeInPNG)
                     {
                         magickImage.Write(fullUrl + "png");
                     }
@@ -135,6 +139,8 @@ namespace Image_resizing_magic
 
         public void ResizeSystem()
         {
+            BackgroundWorker worker = new BackgroundWorker();
+
             foreach (ImageClassAux Image in _ListImages)
             {
                 using (MagickImage magickImage = new MagickImage(Image.GetDirectoryRoute()))
